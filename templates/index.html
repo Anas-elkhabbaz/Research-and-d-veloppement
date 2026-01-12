@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SM-UMT | Self-Mining Unsupervised Machine Translation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #6b6b7b;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --success: #22c55e;
+            --error: #ef4444;
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        h1 {
+            font-size: 2rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .translator-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .api-section {
+            padding: 1rem 1.5rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .api-section label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .api-input {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .api-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .language-bar {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            gap: 1rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .lang-select {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .swap-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+
+        .swap-btn:hover {
+            transform: rotate(180deg);
+        }
+
+        .translation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .text-area-container {
+            padding: 1.5rem;
+        }
+
+        .text-area-container:first-child {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .text-area-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .text-area {
+            width: 100%;
+            height: 150px;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: none;
+            font-family: inherit;
+        }
+
+        .text-area:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .output-area {
+            min-height: 150px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .output-area.has-content {
+            color: var(--text-primary);
+        }
+
+        /* Progress Section */
+        .progress-section {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .progress-section.show {
+            display: block;
+        }
+
+        .progress-bar-container {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--accent-gradient);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Button Section */
+        .button-section {
+            padding: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .translate-btn {
+            padding: 0.8rem 2rem;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .translate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .translate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quick-btn {
+            padding: 0.8rem 1.5rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent-primary);
+        }
+
+        .quick-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Status Messages */
+        .status-message {
+            padding: 0.8rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .status-message.show {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        .status-message.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .status-message.loading {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent-primary);
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid currentColor;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Info Cards */
+        .info-section {
+            margin-top: 2rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .info-card {
+            padding: 1.25rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            text-align: center;
+        }
+
+        .info-card-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card h3 {
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-card p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .translation-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .text-area-container:first-child {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .info-section {
+                grid-template-columns: 1fr;
+            }
+
+            .api-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        /* Debug Console */
+        .debug-console {
+            margin-top: 1rem;
+            background: #1e1e2e;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .debug-console.show {
+            display: block;
+        }
+
+        .debug-console .log {
+            color: var(--text-secondary);
+            margin: 0.25rem 0;
+        }
+
+        .debug-console .log.error {
+            color: var(--error);
+        }
+
+        .debug-console .log.success {
+            color: var(--success);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-gradient"></div>
+
+    <div class="container">
+        <header>
+            <h1>🌐 SM-UMT</h1>
+            <p class="subtitle">Self-Mining Unsupervised Machine Translation</p>
+        </header>
+
+        <div class="translator-card">
+            <!-- API Key -->
+            <div class="api-section">
+                <label>🔑 API Key:</label>
+                <input type="password" id="apiKey" class="api-input" placeholder="Enter Gemini API key...">
+            </div>
+
+            <!-- Language Selector -->
+            <div class="language-bar">
+                <select id="srcLang" class="lang-select">
+                    <option value="fra">🇫🇷 French</option>
+                    <option value="eng">🇬🇧 English</option>
+                    <option value="arb">🇸🇦 Arabic</option>
+                </select>
+                <button class="swap-btn" onclick="swapLanguages()">⇄</button>
+                <select id="tgtLang" class="lang-select">
+                    <option value="eng">🇬🇧 English</option>
+                    <option value="fra">🇫🇷 French</option>
+                    <option value="arb">🇸🇦 Arabic</option>
+                </select>
+            </div>
+
+            <!-- Translation Areas -->
+            <div class="translation-grid">
+                <div class="text-area-container">
+                    <div class="text-area-label">Source Text</div>
+                    <textarea id="sourceText" class="text-area"
+                        placeholder="Enter text to translate...">Bonjour le monde</textarea>
+                </div>
+                <div class="text-area-container">
+                    <div class="text-area-label">Translation</div>
+                    <div id="translationOutput" class="output-area">Translation will appear here...</div>
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div id="progressSection" class="progress-section">
+                <div class="progress-bar-container">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+                <div class="progress-text">
+                    <span id="progressMessage">Initializing...</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div id="statusMessage" class="status-message"></div>
+
+            <!-- Buttons -->
+            <div class="button-section">
+                <button id="quickBtn" class="quick-btn" onclick="quickTranslate()">
+                    ⚡ Quick Translate
+                </button>
+                <button id="translateBtn" class="translate-btn" onclick="fullTranslate()">
+                    ✨ Full SM-UMT Pipeline
+                </button>
+            </div>
+        </div>
+
+        <!-- Debug Console -->
+        <div id="debugConsole" class="debug-console"></div>
+
+        <!-- Info Cards -->
+        <div class="info-section">
+            <div class="info-card">
+                <div class="info-card-icon">⚡</div>
+                <h3>Quick Translate</h3>
+                <p>Direct LLM translation (fast, ~5s)</p>
+            </div>
+            <div class="info-card">
+                <div class="info-card-icon">🔬</div>
+                <h3>Full Pipeline</h3>
+                <p>SM-UMT with ICL mining (~30-60s)</p>
+            </div>
+            <div class="info-card">
+                <div class="info-card-icon">📊</div>
+                <h3>Debug Mode</h3>
+                <p>Click here to toggle console</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>SM-UMT | <a href="https://makersuite.google.com/app/apikey" target="_blank">Get Gemini API Key</a></p>
+        </footer>
+    </div>
+
+    <script>
+        // Load saved API key
+        const savedKey = localStorage.getItem('gemini_api_key');
+        if (savedKey) document.getElementById('apiKey').value = savedKey;
+
+        // Toggle debug console
+        document.querySelector('.info-section .info-card:last-child').onclick = () => {
+            document.getElementById('debugConsole').classList.toggle('show');
+        };
+
+        function log(msg, type = 'info') {
+            const console = document.getElementById('debugConsole');
+            const entry = document.createElement('div');
+            entry.className = 'log ' + type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            console.appendChild(entry);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        function swapLanguages() {
+            const src = document.getElementById('srcLang');
+            const tgt = document.getElementById('tgtLang');
+            [src.value, tgt.value] = [tgt.value, src.value];
+        }
+
+        function showStatus(msg, type) {
+            const el = document.getElementById('statusMessage');
+            el.innerHTML = type === 'loading' ? `<div class="spinner"></div> ${msg}` : msg;
+            el.className = 'status-message show ' + type;
+        }
+
+        function hideStatus() {
+            document.getElementById('statusMessage').className = 'status-message';
+        }
+
+        function showProgress(show) {
+            document.getElementById('progressSection').className = 'progress-section' + (show ? ' show' : '');
+        }
+
+        function updateProgress(percent, message) {
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressPercent').textContent = percent + '%';
+            if (message) document.getElementById('progressMessage').textContent = message;
+        }
+
+        function setButtons(disabled) {
+            document.getElementById('translateBtn').disabled = disabled;
+            document.getElementById('quickBtn').disabled = disabled;
+        }
+
+        // Quick translation (direct LLM)
+        async function quickTranslate() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const text = document.getElementById('sourceText').value.trim();
+            const srcLang = document.getElementById('srcLang').value;
+            const tgtLang = document.getElementById('tgtLang').value;
+
+            if (!apiKey) { showStatus('⚠️ Please enter your API key', 'error'); return; }
+            if (!text) { showStatus('⚠️ Please enter text to translate', 'error'); return; }
+            if (srcLang === tgtLang) { showStatus('⚠️ Languages must be different', 'error'); return; }
+
+            localStorage.setItem('gemini_api_key', apiKey);
+            hideStatus();
+            showStatus('⚡ Translating directly...', 'loading');
+            setButtons(true);
+            log('Starting quick translation...');
+
+            try {
+                const response = await fetch('/simple_translate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, src_lang: srcLang, tgt_lang: tgtLang, api_key: apiKey })
+                });
+
+                log('Response status: ' + response.status);
+                const data = await response.json();
+                log('Response: ' + JSON.stringify(data));
+
+                if (data.success) {
+                    document.getElementById('translationOutput').textContent = data.translation;
+                    document.getElementById('translationOutput').classList.add('has-content');
+                    showStatus('✅ Translation complete!', 'success');
+                    log('Success: ' + data.translation, 'success');
+                } else {
+                    showStatus('❌ ' + data.error, 'error');
+                    log('Error: ' + data.error, 'error');
+                }
+            } catch (e) {
+                showStatus('❌ Network error: ' + e.message, 'error');
+                log('Exception: ' + e.message, 'error');
+            }
+
+            setButtons(false);
+        }
+
+        // Full SM-UMT pipeline
+        async function fullTranslate() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const text = document.getElementById('sourceText').value.trim();
+            const srcLang = document.getElementById('srcLang').value;
+            const tgtLang = document.getElementById('tgtLang').value;
+
+            if (!apiKey) { showStatus('⚠️ Please enter your API key', 'error'); return; }
+            if (!text) { showStatus('⚠️ Please enter text to translate', 'error'); return; }
+            if (srcLang === tgtLang) { showStatus('⚠️ Languages must be different', 'error'); return; }
+
+            localStorage.setItem('gemini_api_key', apiKey);
+            hideStatus();
+            showProgress(true);
+            updateProgress(5, 'Starting SM-UMT pipeline...');
+            setButtons(true);
+            log('Starting full SM-UMT pipeline...');
+
+            try {
+                const response = await fetch('/translate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, src_lang: srcLang, tgt_lang: tgtLang, api_key: apiKey })
+                });
+
+                log('Response status: ' + response.status);
+                const data = await response.json();
+                log('Response: ' + JSON.stringify(data));
+
+                if (data.success) {
+                    updateProgress(100, 'Done!');
+                    document.getElementById('translationOutput').textContent = data.translation;
+                    document.getElementById('translationOutput').classList.add('has-content');
+                    showStatus('✅ Translation complete!', 'success');
+                    log('Success: ' + data.translation, 'success');
+                } else {
+                    showStatus('❌ ' + data.error, 'error');
+                    log('Error: ' + data.error, 'error');
+                }
+            } catch (e) {
+                showStatus('❌ Network error: ' + e.message, 'error');
+                log('Exception: ' + e.message, 'error');
+            }
+
+            setTimeout(() => showProgress(false), 2000);
+            setButtons(false);
+        }
+    </script>
+</body>
+
+</html>

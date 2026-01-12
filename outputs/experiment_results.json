@@ -1,0 +1,113 @@
+{
+  "metadata": {
+    "timestamp": "2026-01-12T12:31:41.558538",
+    "src_lang": "fra",
+    "tgt_lang": "eng"
+  },
+  "experiments": {
+    "baseline": {
+      "method": "baseline",
+      "num_samples": 3,
+      "bleu": 100.00000000000004,
+      "precisions": [
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "time_seconds": 24.954017162322998,
+      "translations": [
+        "Hello, how are you?",
+        "My name is Marie.",
+        "The weather is nice today."
+      ],
+      "references": [
+        "Hello, how are you?",
+        "My name is Marie.",
+        "The weather is nice today."
+      ]
+    },
+    "baseline_dve": {
+      "method": "baseline_dve",
+      "num_samples": 3,
+      "bleu": 57.95782787848098,
+      "precisions": [
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "time_seconds": 132.64409136772156,
+      "dve_stats": {
+        "total_unknown": 10,
+        "resolved": 8,
+        "resolution_rate": 0.8
+      },
+      "translations": [
+        "Hello, how are you?",
+        "My name is Marie.",
+        ""
+      ],
+      "references": [
+        "Hello, how are you?",
+        "My name is Marie.",
+        "The weather is nice today."
+      ]
+    },
+    "baseline_qais": {
+      "method": "baseline_qais",
+      "num_samples": 3,
+      "bleu": 0.0,
+      "precisions": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "time_seconds": 33.28476095199585,
+      "qais_stats": {
+        "total_evaluated": 0,
+        "passed_quality": 0,
+        "filtered_out": 0
+      },
+      "translations": [
+        "",
+        "",
+        ""
+      ],
+      "references": [
+        "Hello, how are you?",
+        "My name is Marie.",
+        "The weather is nice today."
+      ]
+    },
+    "baseline_dam": {
+      "method": "baseline_dam",
+      "domain": "hate_speech",
+      "num_samples": 3,
+      "bleu": 0.0,
+      "precisions": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "time_seconds": 34.539705991744995,
+      "dam_stats": {
+        "domain_vocab_size": 30,
+        "words_used": 2,
+        "words_mined": 0
+      },
+      "translations": [
+        "",
+        "",
+        ""
+      ],
+      "references": [
+        "This speech encourages discrimination against minorities.",
+        "Racist comments are prohibited on our platform.",
+        "We must fight xenophobia in our society."
+      ]
+    }
+  }
+}

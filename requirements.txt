@@ -1,0 +1,27 @@
+# SM-UMT Dependencies
+# Self-Mining Unsupervised Machine Translation with LLMs
+
+# Core ML libraries
+torch>=2.0.0
+numpy>=1.24.0
+
+# Google Gemini API
+google-generativeai>=0.3.0
+
+# Sentence embeddings for similarity computation
+sentence-transformers>=2.2.0
+
+# Evaluation metrics
+sacrebleu>=2.3.0
+
+# Dataset loading
+datasets>=2.14.0
+
+# BM25 (optional - we have our own implementation)
+# rank-bm25>=0.2.2
+
+# Utilities
+tqdm>=4.65.0
+
+# For testing
+pytest>=7.0.0

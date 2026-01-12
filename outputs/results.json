@@ -1,0 +1,36 @@
+{
+  "translations": [
+    "Hello How your condition / you (as in \"how are you\")",
+    "My name Ahmad",
+    "The weather Beautiful Today**",
+    "أحب قراءة The books",
+    ""
+  ],
+  "source_sentences": [
+    "مرحبا، كيف حالك؟",
+    "اسمي أحمد.",
+    "الطقس جميل اليوم.",
+    "أحب قراءة الكتب.",
+    "كم الساعة؟"
+  ],
+  "src_lang": "arb",
+  "tgt_lang": "eng",
+  "num_word_translations": 10,
+  "num_synthetic_pairs": 5,
+  "llm_stats": {
+    "model": "gemini-2.5-flash",
+    "request_count": 7
+  },
+  "evaluation": {
+    "bleu": 9.56507354069612,
+    "bp": 1.0,
+    "precisions": [
+      32.142857142857146,
+      16.666666666666668,
+      5.0,
+      3.125
+    ],
+    "sys_len": 28,
+    "ref_len": 27
+  }
+}
